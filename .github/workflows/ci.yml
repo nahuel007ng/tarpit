@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: format, analyze, test (Flutter ${{ matrix.flutter }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        # Minimum supported Flutter (pubspec.yaml) and a pinned current stable.
+        flutter: ['3.44.0', '3.47.7']
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: ${{ matrix.flutter }}
+      - run: flutter pub get
+      - run: flutter pub get
+        working-directory: example
+      # The formatter's style follows the SDK version, so format is checked
+      # on the pinned current SDK only.
+      - if: matrix.flutter == '3.47.7'
+        run: dart format --output=none --set-exit-if-changed .
+      - run: dart analyze --fatal-infos
+      - run: flutter test
+      - name: pub publish dry run
+        run: flutter pub publish --dry-run
+      - name: the repository's own tests have no findings
+        run: dart run tarpit --fail-on info
+      - name: the example has its three findings
+        working-directory: example
+        run: |
+          dart run tarpit test/fixed_test.dart --fail-on info
+          dart run tarpit --format sarif --output ../example.sarif || test $? -eq 1
+          test "$(grep -c '"ruleId"' ../example.sarif)" -eq 3

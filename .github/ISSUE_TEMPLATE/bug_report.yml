@@ -1,0 +1,94 @@
+name: Bug report
+description: A false positive, a missed hang, the watchdog misbehaving, or the CLI misbehaving.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please paste invented code, not code from a private project. Security
+        problems go through the Security tab, not here.
+  - type: input
+    id: version
+    attributes:
+      label: Package version
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Output of `flutter --version` and the host OS.
+      render: text
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind of problem
+      options:
+        - False positive (flagged, but the test does not stall)
+        - False negative (a test hangs and tarpit said nothing)
+        - Watchdog (stopped a healthy test, or did not stop a stalled one)
+        - Crash or wrong output from the CLI
+        - Something else
+    validations:
+      required: true
+  - type: input
+    id: rule
+    attributes:
+      label: Rule id, if any
+      placeholder: "e.g. the id printed next to the finding"
+  - type: textarea
+    id: command
+    attributes:
+      label: Command you ran
+      render: shell
+      placeholder: dart run tarpit test/
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproduction
+      description: The smallest testWidgets (and widget, if needed) that shows it.
+      render: dart
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+      description: For a false negative, what the test does when you run it (hangs, times out, fails) and what fixes it.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+      description: What tarpit printed, including the exit code.
+      render: text
+    validations:
+      required: true
+  - type: dropdown
+    id: ai-use
+    attributes:
+      label: Did you use an AI tool to write this issue?
+      options:
+        - "No"
+        - "Yes, for parts"
+        - "Yes, mostly"
+    validations:
+      required: true
+  - type: input
+    id: ai-tool
+    attributes:
+      label: If yes, which tool and model?
+      description: Required if you answered yes above, for example "Claude Code, Opus 5.5" or "Copilot, GPT-5".
+  - type: checkboxes
+    id: own-words
+    attributes:
+      label: Your own words
+      options:
+        - label: I wrote this issue in my own words.
+          required: true
